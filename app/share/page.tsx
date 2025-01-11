@@ -1,28 +1,42 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { createPost, supabase } from "@/lib/supabase";
 import { Upload } from "lucide-react";
-import { supabase, createPost } from "@/lib/supabase";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+
+type PreviewData = {
+  file: File;
+  previewUrl: string;
+} | null;
 
 export default function SharePage() {
   const router = useRouter();
   const [uploading, setUploading] = useState(false);
   const [caption, setCaption] = useState("");
+  const [preview, setPreview] = useState<PreviewData>(null);
 
-  async function onFileSelected(e: React.ChangeEvent<HTMLInputElement>) {
+  function onFileSelected(e: React.ChangeEvent<HTMLInputElement>) {
     if (!e.target.files?.[0]) return;
+    const file = e.target.files[0];
+    const previewUrl = URL.createObjectURL(file);
+    setPreview({ file, previewUrl });
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!preview) return;
 
     try {
       setUploading(true);
-      const file = e.target.files[0];
-      const fileExt = file.name.split(".").pop();
+      const fileExt = preview.file.name.split(".").pop();
       const fileName = `${Math.random()}.${fileExt}`;
       const filePath = `${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from("images")
-        .upload(filePath, file);
+        .upload(filePath, preview.file);
 
       if (uploadError) throw uploadError;
 
@@ -48,19 +62,39 @@ export default function SharePage() {
       </h1>
       <p className="text-xl mb-4">Sharing is caring, deel iets met ons!</p>
 
-      <div className="w-full max-w-md">
-        <label className="w-full aspect-[4/3] border-2 border-dashed border-[#00ff95]/40 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-[#00ff95]/60 transition-colors mb-4">
-          <Upload className="w-12 h-12 text-[#00ff95] mb-4" />
-          <p className="text-[#00ff95] font-bold">LACHEVODEFOTOO</p>
-          <input
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={onFileSelected}
-            disabled={uploading}
-          />
-        </label>
+      <form onSubmit={handleSubmit} className="w-full max-w-md">
+        {preview ? (
+          <div className="w-full aspect-[4/3] relative rounded-lg overflow-hidden mb-4">
+            <Image
+              src={preview.previewUrl}
+              alt="Preview"
+              fill
+              className="object-cover"
+            />
+            <button
+              type="button"
+              onClick={() => setPreview(null)}
+              className="absolute top-2 right-2 bg-black/50 text-white px-3 py-1 rounded-lg hover:bg-black/70"
+            >
+              Change
+            </button>
+          </div>
+        ) : (
+          <label className="w-full aspect-[4/3] border-2 border-dashed border-[#00ff95]/40 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-[#00ff95]/60 transition-colors mb-4">
+            <Upload className="w-12 h-12 text-[#00ff95] mb-4" />
+            <p className="text-[#00ff95] font-bold">LACHEVODEFOTOO</p>
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={onFileSelected}
+            />
+          </label>
+        )}
 
+        <p className="text-center mt-4 text-gray-400">
+          1 woord zegt meer dan 1000 foto's
+        </p>
         <input
           type="text"
           placeholder="Een leeg blad, laat u gaan"
@@ -70,16 +104,13 @@ export default function SharePage() {
         />
 
         <button
+          type="submit"
           className="w-full p-4 rounded-lg bg-[#00ff95] text-black font-bold text-lg disabled:opacity-50 transition-opacity"
-          disabled={uploading}
+          disabled={uploading || !preview}
         >
           {uploading ? "Uploading..." : "Okaaaaaaay let'sgo"}
         </button>
-
-        <p className="text-center mt-4 text-gray-400">
-          1 woord zegt meer dan 1000 foto's
-        </p>
-      </div>
+      </form>
     </main>
   );
 }
