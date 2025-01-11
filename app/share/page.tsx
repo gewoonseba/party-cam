@@ -1,52 +1,43 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { Upload } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Upload } from "lucide-react";
+import { supabase, createPost } from "@/lib/supabase";
 
 export default function SharePage() {
-  const router = useRouter()
-  const [uploading, setUploading] = useState(false)
-  const [caption, setCaption] = useState('')
+  const router = useRouter();
+  const [uploading, setUploading] = useState(false);
+  const [caption, setCaption] = useState("");
 
   async function onFileSelected(e: React.ChangeEvent<HTMLInputElement>) {
-    if (!e.target.files?.[0]) return
-    
+    if (!e.target.files?.[0]) return;
+
     try {
-      setUploading(true)
-      const file = e.target.files[0]
-      const fileExt = file.name.split('.').pop()
-      const fileName = `${Math.random()}.${fileExt}`
-      const filePath = `${fileName}`
+      setUploading(true);
+      const file = e.target.files[0];
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `${fileName}`;
 
       const { error: uploadError } = await supabase.storage
-        .from('images')
-        .upload(filePath, file)
+        .from("images")
+        .upload(filePath, file);
 
-      if (uploadError) throw uploadError
+      if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('images')
-        .getPublicUrl(filePath)
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("images").getPublicUrl(filePath);
 
-      const { error: dbError } = await supabase
-        .from('images')
-        .insert([
-          {
-            url: publicUrl,
-            caption: caption,
-          },
-        ])
+      await createPost(caption, publicUrl);
 
-      if (dbError) throw dbError
-
-      router.push('/')
-      router.refresh()
+      router.push("/");
+      router.refresh();
     } catch (error) {
-      console.error('Error uploading image:', error)
+      console.error("Error creating post:", error);
     } finally {
-      setUploading(false)
+      setUploading(false);
     }
   }
 
@@ -55,9 +46,7 @@ export default function SharePage() {
       <h1 className="text-6xl font-bold text-[#00ff95] mb-2 filter drop-shadow-[0_0_10px_rgba(0,255,149,0.8)]">
         Thirty
       </h1>
-      <p className="text-xl mb-4">
-        Sharing is caring, deel iets met ons!
-      </p>
+      <p className="text-xl mb-4">Sharing is caring, deel iets met ons!</p>
 
       <div className="w-full max-w-md">
         <label className="w-full aspect-[4/3] border-2 border-dashed border-[#00ff95]/40 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-[#00ff95]/60 transition-colors mb-4">
@@ -84,7 +73,7 @@ export default function SharePage() {
           className="w-full p-4 rounded-lg bg-[#00ff95] text-black font-bold text-lg disabled:opacity-50 transition-opacity"
           disabled={uploading}
         >
-          {uploading ? 'Uploading...' : 'Okaaaaaaay let\'sgo'}
+          {uploading ? "Uploading..." : "Okaaaaaaay let'sgo"}
         </button>
 
         <p className="text-center mt-4 text-gray-400">
@@ -92,6 +81,5 @@ export default function SharePage() {
         </p>
       </div>
     </main>
-  )
+  );
 }
-
