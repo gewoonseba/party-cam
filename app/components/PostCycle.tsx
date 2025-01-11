@@ -1,6 +1,6 @@
 "use client";
 
-import { Camera } from "lucide-react";
+import { Camera, ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -15,6 +15,7 @@ export default function PostCycle({ initialPosts }: { initialPosts: Post[] }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const showDebugControls = process.env.NEXT_PUBLIC_DEBUG_CONTROLS === "true";
 
   // Preload the next image
   useEffect(() => {
@@ -44,6 +45,24 @@ export default function PostCycle({ initialPosts }: { initialPosts: Post[] }) {
     return () => clearInterval(interval);
   }, [initialPosts.length]);
 
+  function handlePrevious() {
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setCurrentIndex(
+        (prev) => (prev - 1 + initialPosts.length) % initialPosts.length
+      );
+      setIsTransitioning(false);
+    }, 300);
+  }
+
+  function handleNext() {
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setCurrentIndex((prev) => (prev + 1) % initialPosts.length);
+      setIsTransitioning(false);
+    }, 300);
+  }
+
   if (initialPosts.length === 0) {
     return (
       <div className="w-full h-full bg-gray-900 flex flex-col items-center justify-center text-center p-4">
@@ -64,32 +83,49 @@ export default function PostCycle({ initialPosts }: { initialPosts: Post[] }) {
   const imageLoaded = loadedImages.has(currentPost.image_url);
 
   return (
-    <>
-      <div
-        className={`transition-opacity duration-300 ${
-          isTransitioning ? "opacity-0" : "opacity-100"
-        }`}
-      >
-        {imageLoaded && (
-          <>
-            <Image
-              src={currentPost.image_url}
-              alt="Party moment"
-              fill
-              className="object-cover"
-              priority
-            />
-            <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/70 to-transparent">
-              <p className="text-white text-xl">{currentPost.caption}</p>
-            </div>
-          </>
-        )}
-      </div>
-      {!imageLoaded && (
+    <div className="w-full h-full relative">
+      {imageLoaded ? (
+        <div
+          className={`w-full h-full transition-opacity duration-300 ${
+            isTransitioning ? "opacity-0" : "opacity-100"
+          }`}
+        >
+          <Image
+            src={currentPost.image_url}
+            alt="Party moment"
+            fill
+            className="object-cover"
+            priority
+          />
+          <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/70 to-transparent">
+            <p className="text-white text-xl">{currentPost.caption}</p>
+          </div>
+        </div>
+      ) : (
         <div className="w-full h-full flex items-center justify-center">
           <div className="w-8 h-8 border-4 border-[#00ff95] border-t-transparent rounded-full animate-spin"></div>
         </div>
       )}
-    </>
+
+      {showDebugControls && initialPosts.length > 1 && (
+        <>
+          <button
+            onClick={handlePrevious}
+            className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 p-2 rounded-full hover:bg-black/70 transition-colors z-10"
+          >
+            <ChevronLeft className="w-6 h-6 text-white" />
+          </button>
+          <button
+            onClick={handleNext}
+            className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 p-2 rounded-full hover:bg-black/70 transition-colors z-10"
+          >
+            <ChevronRight className="w-6 h-6 text-white" />
+          </button>
+          <div className="absolute bottom-16 left-1/2 -translate-x-1/2 bg-black/50 px-3 py-1 rounded-full text-white text-sm z-10">
+            {currentIndex + 1} / {initialPosts.length}
+          </div>
+        </>
+      )}
+    </div>
   );
 }

@@ -82,7 +82,7 @@ export default function SharePage() {
         ) : (
           <label className="w-full aspect-[4/3] border-2 border-dashed border-[#00ff95]/40 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-[#00ff95]/60 transition-colors mb-4">
             <Upload className="w-12 h-12 text-[#00ff95] mb-4" />
-            <p className="text-[#00ff95] font-bold">LACHEVODEFOTOO</p>
+            <p className="text-[#00ff95] font-bold">LACHE VOOR DE FOTOO</p>
             <input
               type="file"
               accept="image/*"
@@ -92,13 +92,12 @@ export default function SharePage() {
           </label>
         )}
 
-        <p className="text-center mt-4 text-gray-400">
+        <p className="mt-4 mb-1 text-gray-400">
           1 woord zegt meer dan 1000 foto's
         </p>
-        <input
-          type="text"
-          placeholder="Een leeg blad, laat u gaan"
-          className="w-full p-4 rounded-lg bg-gray-800/50 border border-gray-700 text-white mb-4"
+        <textarea
+          placeholder="Today is where your book begins, the rest is still unwritten"
+          className="w-full p-4 rounded-lg bg-gray-800/50 border border-gray-700 text-white mb-4 min-h-[100px] resize-none"
           value={caption}
           onChange={(e) => setCaption(e.target.value)}
         />
