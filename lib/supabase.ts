@@ -33,3 +33,17 @@ export async function createPost(caption: string, imageUrl: string) {
   if (error) throw error;
   return data[0];
 }
+
+export async function getAllPosts() {
+  const { data: posts, error } = await supabase
+    .from("posts")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Error fetching posts:", error);
+    return [];
+  }
+
+  return posts;
+}
