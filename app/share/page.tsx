@@ -46,7 +46,7 @@ export default function SharePage() {
 
       await createPost(caption, publicUrl);
 
-      router.push("/");
+      router.push("/thanks");
       router.refresh();
     } catch (error) {
       console.error("Error creating post:", error);
