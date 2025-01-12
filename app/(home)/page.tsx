@@ -2,7 +2,7 @@
 
 import { QrCode } from "lucide-react";
 import Link from "next/link";
-import PostCycle from "./components/PostCycle";
+import PostCycle from "../components/PostCycle";
 export default async function Home() {
   return (
     <main className="min-h-screen flex flex-col items-center justify-center p-2 relative bg-[#1a1a1a]">
