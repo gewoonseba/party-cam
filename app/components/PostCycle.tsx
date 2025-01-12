@@ -1,6 +1,6 @@
 "use client";
 
-import { getAllPosts } from "@/lib/supabase";
+import { getAllPosts } from "@/app/utils/supabase/queries";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";

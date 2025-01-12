@@ -1,6 +1,7 @@
 "use client";
 
-import { createPost, supabase } from "@/lib/supabase";
+import { createClient } from "@/app/utils/supabase/client";
+import { createPost } from "@/app/utils/supabase/queries";
 import { Upload } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -34,15 +35,15 @@ export default function SharePage() {
       const fileName = `${Math.random()}.${fileExt}`;
       const filePath = `${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from("images")
+      const { error: uploadError } = await createClient()
+        .storage.from("images")
         .upload(filePath, preview.file);
 
       if (uploadError) throw uploadError;
 
       const {
         data: { publicUrl },
-      } = supabase.storage.from("images").getPublicUrl(filePath);
+      } = createClient().storage.from("images").getPublicUrl(filePath);
 
       await createPost(caption, publicUrl);
 

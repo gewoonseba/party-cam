@@ -1,20 +1,9 @@
 "use client";
 
-import { supabase } from "@/lib/supabase";
 import { QrCode } from "lucide-react";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import PostCycle from "./components/PostCycle";
 export default async function Home() {
-  const session = await supabase.auth.getSession();
-
-  if (session) {
-    console.log("🔑 Session found, redirecting to /");
-  } else {
-    console.log("🔑 No session found, redirecting to /login");
-    redirect("/login");
-  }
-
   return (
     <main className="min-h-screen flex flex-col items-center justify-center p-2 relative bg-[#1a1a1a]">
       <div className="w-[90%] max-w-7xl aspect-[4/3] relative rounded-lg overflow-hidden border-4 border-[#00ff95]/20">
