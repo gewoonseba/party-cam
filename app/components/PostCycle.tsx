@@ -1,5 +1,6 @@
 "use client";
 
+import { getAllPosts } from "@/lib/supabase";
 import { Camera, ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -12,45 +13,93 @@ type Post = {
 };
 
 export default function PostCycle({ initialPosts }: { initialPosts: Post[] }) {
+  const [posts, setPosts] = useState<Post[]>(initialPosts);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
   const [isTransitioning, setIsTransitioning] = useState(false);
   const showDebugControls = process.env.NEXT_PUBLIC_DEBUG_CONTROLS === "true";
 
-  // Preload the next image
+  // Check for new posts every 30 seconds
   useEffect(() => {
-    if (initialPosts.length === 0) return;
+    const checkNewPosts = async () => {
+      console.log("🔍 Checking for new posts...");
+      const latestPosts = await getAllPosts();
 
-    const nextIndex = (currentIndex + 1) % initialPosts.length;
-    const nextImage = new window.Image();
-    nextImage.src = initialPosts[nextIndex].image_url;
-    nextImage.onload = () => {
-      setLoadedImages((prev) =>
-        new Set(prev).add(initialPosts[nextIndex].image_url)
+      // Find new posts by comparing IDs
+      const newPosts = latestPosts.filter(
+        (newPost) =>
+          !posts.some((existingPost) => existingPost.id === newPost.id)
       );
-    };
-  }, [currentIndex, initialPosts]);
 
+      if (newPosts.length > 0) {
+        console.log(`✨ Found ${newPosts.length} new posts!`);
+      } else {
+        console.log("📭 No new posts found");
+      }
+
+      if (newPosts.length > 0) {
+        // Preload new images before adding them to the cycle
+        const preloadPromises = newPosts.map((post) => {
+          return new Promise<string>((resolve) => {
+            const img = new window.Image();
+            img.src = post.image_url;
+            img.onload = () => {
+              setLoadedImages((prev) => new Set(prev).add(post.image_url));
+              resolve(post.image_url);
+            };
+          });
+        });
+
+        await Promise.all(preloadPromises);
+
+        // Add new posts after the current one
+        setPosts((currentPosts) => {
+          const beforeCurrent = currentPosts.slice(0, currentIndex + 1);
+          const afterCurrent = currentPosts.slice(currentIndex + 1);
+          return [...beforeCurrent, ...newPosts, ...afterCurrent];
+        });
+      }
+    };
+
+    // Run immediately
+    checkNewPosts();
+
+    // Then set up interval
+    const interval = setInterval(checkNewPosts, 30000);
+    return () => clearInterval(interval);
+  }, [posts, currentIndex]);
+
+  // Preload next image
   useEffect(() => {
-    if (initialPosts.length <= 1) return;
+    if (posts.length === 0) return;
+
+    const nextIndex = (currentIndex + 1) % posts.length;
+    const nextImage = new window.Image();
+    nextImage.src = posts[nextIndex].image_url;
+    nextImage.onload = () => {
+      setLoadedImages((prev) => new Set(prev).add(posts[nextIndex].image_url));
+    };
+  }, [currentIndex, posts]);
+
+  // Auto-advance timer
+  useEffect(() => {
+    if (posts.length <= 1) return;
 
     const interval = setInterval(() => {
       setIsTransitioning(true);
       setTimeout(() => {
-        setCurrentIndex((prev) => (prev + 1) % initialPosts.length);
+        setCurrentIndex((prev) => (prev + 1) % posts.length);
         setIsTransitioning(false);
-      }, 300); // Transition duration
+      }, 300);
     }, 15000);
 
     return () => clearInterval(interval);
-  }, [initialPosts.length]);
+  }, [posts.length]);
 
   function handlePrevious() {
     setIsTransitioning(true);
     setTimeout(() => {
-      setCurrentIndex(
-        (prev) => (prev - 1 + initialPosts.length) % initialPosts.length
-      );
+      setCurrentIndex((prev) => (prev - 1 + posts.length) % posts.length);
       setIsTransitioning(false);
     }, 300);
   }
@@ -58,12 +107,12 @@ export default function PostCycle({ initialPosts }: { initialPosts: Post[] }) {
   function handleNext() {
     setIsTransitioning(true);
     setTimeout(() => {
-      setCurrentIndex((prev) => (prev + 1) % initialPosts.length);
+      setCurrentIndex((prev) => (prev + 1) % posts.length);
       setIsTransitioning(false);
     }, 300);
   }
 
-  if (initialPosts.length === 0) {
+  if (posts.length === 0) {
     return (
       <div className="w-full h-full bg-gray-900 flex flex-col items-center justify-center text-center p-4">
         <Camera className="w-16 h-16 text-[#00ff95] mb-4" />
@@ -79,7 +128,7 @@ export default function PostCycle({ initialPosts }: { initialPosts: Post[] }) {
     );
   }
 
-  const currentPost = initialPosts[currentIndex];
+  const currentPost = posts[currentIndex];
   const imageLoaded = loadedImages.has(currentPost.image_url);
 
   return (
@@ -107,7 +156,7 @@ export default function PostCycle({ initialPosts }: { initialPosts: Post[] }) {
         </div>
       )}
 
-      {showDebugControls && initialPosts.length > 1 && (
+      {showDebugControls && posts.length > 1 && (
         <>
           <button
             onClick={handlePrevious}
@@ -122,7 +171,7 @@ export default function PostCycle({ initialPosts }: { initialPosts: Post[] }) {
             <ChevronRight className="w-6 h-6 text-white" />
           </button>
           <div className="absolute bottom-16 left-1/2 -translate-x-1/2 bg-black/50 px-3 py-1 rounded-full text-white text-sm z-10">
-            {currentIndex + 1} / {initialPosts.length}
+            {currentIndex + 1} / {posts.length}
           </div>
         </>
       )}
