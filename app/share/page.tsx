@@ -1,7 +1,7 @@
 "use client";
 
-import { createClient } from "@/app/utils/supabase/client";
-import { createPost } from "@/app/utils/supabase/queries";
+import { createClient } from "@/utils/supabase/client";
+import { createPost } from "@/utils/supabase/queries";
 import { Upload } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
