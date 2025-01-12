@@ -1,9 +1,8 @@
 "use client";
 
 import { getAllPosts } from "@/lib/supabase";
-import { Camera, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 import { useEffect, useState } from "react";
 
 type Post = {
@@ -12,64 +11,47 @@ type Post = {
   caption: string;
 };
 
-export default function PostCycle({ initialPosts }: { initialPosts: Post[] }) {
-  const [posts, setPosts] = useState<Post[]>(initialPosts);
+export default function PostCycle() {
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
   const [isTransitioning, setIsTransitioning] = useState(false);
   const showDebugControls = process.env.NEXT_PUBLIC_DEBUG_CONTROLS === "true";
 
-  // Check for new posts every 30 seconds
+  // Initial and periodic data fetching effect
   useEffect(() => {
-    const checkNewPosts = async () => {
-      console.log("🔍 Checking for new posts...");
-      const latestPosts = await getAllPosts();
-
-      // Find new posts by comparing IDs
-      const newPosts = latestPosts.filter(
-        (newPost) =>
-          !posts.some((existingPost) => existingPost.id === newPost.id)
-      );
-
-      if (newPosts.length > 0) {
-        console.log(`✨ Found ${newPosts.length} new posts!`);
-      } else {
-        console.log("📭 No new posts found");
+    async function fetchPosts() {
+      console.log("🔄 Fetching posts...");
+      try {
+        const fetchedPosts = await getAllPosts();
+        console.log(`✅ Fetched ${fetchedPosts.length} posts`);
+        setPosts(fetchedPosts);
+      } catch (error) {
+        console.error("❌ Failed to fetch posts:", error);
+      } finally {
+        setLoading(false);
       }
+    }
 
-      if (newPosts.length > 0) {
-        // Preload new images before adding them to the cycle
-        const preloadPromises = newPosts.map((post) => {
-          return new Promise<string>((resolve) => {
-            const img = new window.Image();
-            img.src = post.image_url;
-            img.onload = () => {
-              setLoadedImages((prev) => new Set(prev).add(post.image_url));
-              resolve(post.image_url);
-            };
-          });
-        });
+    // Fetch immediately when component mounts
+    console.log("🎬 PostCycle mounted, initiating first fetch");
+    fetchPosts();
 
-        await Promise.all(preloadPromises);
+    // Then fetch every 30 seconds
+    const interval = setInterval(() => {
+      console.log("⏰ Time to check for new posts");
+      fetchPosts();
+    }, 30 * 1000);
 
-        // Add new posts after the current one
-        setPosts((currentPosts) => {
-          const beforeCurrent = currentPosts.slice(0, currentIndex + 1);
-          const afterCurrent = currentPosts.slice(currentIndex + 1);
-          return [...beforeCurrent, ...newPosts, ...afterCurrent];
-        });
-      }
+    // Cleanup interval on unmount
+    return () => {
+      console.log("🧹 Cleaning up PostCycle intervals");
+      clearInterval(interval);
     };
+  }, []);
 
-    // Run immediately
-    checkNewPosts();
-
-    // Then set up interval
-    const interval = setInterval(checkNewPosts, 30000);
-    return () => clearInterval(interval);
-  }, [posts, currentIndex]);
-
-  // Preload next image
+  // Preload next image effect
   useEffect(() => {
     if (posts.length === 0) return;
 
@@ -81,7 +63,7 @@ export default function PostCycle({ initialPosts }: { initialPosts: Post[] }) {
     };
   }, [currentIndex, posts]);
 
-  // Auto-advance timer
+  // Auto-advance timer effect
   useEffect(() => {
     if (posts.length <= 1) return;
 
@@ -112,18 +94,10 @@ export default function PostCycle({ initialPosts }: { initialPosts: Post[] }) {
     }, 300);
   }
 
-  if (posts.length === 0) {
+  if (loading || posts.length === 0) {
     return (
-      <div className="w-full h-full bg-gray-900 flex flex-col items-center justify-center text-center p-4">
-        <Camera className="w-16 h-16 text-[#00ff95] mb-4" />
-        <p className="text-[#00ff95] text-2xl font-bold mb-2">No posts yet</p>
-        <p className="text-gray-400">Be the first to share a party moment!</p>
-        <Link
-          href="/share"
-          className="mt-6 bg-[#00ff95] text-black px-6 py-3 rounded-lg font-bold hover:bg-[#00ff95]/80 transition-colors"
-        >
-          Share a photo
-        </Link>
+      <div className="w-full h-full flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-[#00ff95] border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }

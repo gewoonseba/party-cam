@@ -1,15 +1,12 @@
-import { getAllPosts } from "@/lib/supabase";
 import { QrCode } from "lucide-react";
 import Link from "next/link";
 import PostCycle from "./components/PostCycle";
 
-export default async function Home() {
-  const posts = await getAllPosts();
-
+export default function Home() {
   return (
     <main className="min-h-screen flex flex-col items-center justify-center p-2 relative bg-[#1a1a1a]">
       <div className="w-[90%] max-w-7xl aspect-[4/3] relative rounded-lg overflow-hidden border-4 border-[#00ff95]/20">
-        <PostCycle initialPosts={posts} />
+        <PostCycle />
         <div className="absolute inset-x-0 top-0 p-4 bg-gradient-to-b from-black/70 to-transparent">
           <h1 className="text-6xl font-bold text-[#00ff95] filter drop-shadow-[0_0_10px_rgba(0,255,149,0.8)] text-center w-full">
             Thirty
