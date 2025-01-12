@@ -1,9 +1,16 @@
-"use client";
-
 import { QrCode } from "lucide-react";
 import Link from "next/link";
 import PostCycle from "../components/PostCycle";
+import { createClient } from "@/utils/supabase/server";
+import { redirect } from "next/navigation";
 export default async function Home() {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase.auth.getUser();
+  if (error || !data?.user) {
+    redirect("/login");
+  }
+
   return (
     <main className="min-h-screen flex flex-col items-center justify-center p-2 relative bg-[#1a1a1a]">
       <div className="w-[90%] max-w-7xl aspect-[4/3] relative rounded-lg overflow-hidden border-4 border-[#00ff95]/20">
