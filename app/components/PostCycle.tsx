@@ -27,6 +27,17 @@ export default function PostCycle() {
         const fetchedPosts = await getAllPosts();
         console.log(`✅ Fetched ${fetchedPosts.length} posts`);
         setPosts(fetchedPosts);
+
+        // Preload the first image immediately
+        if (fetchedPosts.length > 0) {
+          const firstImage = new window.Image();
+          firstImage.src = fetchedPosts[0].image_url;
+          firstImage.onload = () => {
+            setLoadedImages((prev) =>
+              new Set(prev).add(fetchedPosts[0].image_url)
+            );
+          };
+        }
       } catch (error) {
         console.error("❌ Failed to fetch posts:", error);
       } finally {
