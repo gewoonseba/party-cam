@@ -2,6 +2,7 @@
 
 import { createClient } from "@/utils/supabase/client";
 import { createPost } from "@/utils/supabase/queries";
+import imageCompression from "browser-image-compression";
 import { Upload } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -12,13 +13,43 @@ type PreviewData = {
   previewUrl: string;
 } | null;
 
+const MAX_FILE_SIZE_MB = 5;
+const MB_TO_BYTES = 1024 * 1024;
+
 export default function SharePage() {
   const router = useRouter();
   const [uploading, setUploading] = useState(false);
   const [caption, setCaption] = useState("");
   const [preview, setPreview] = useState<PreviewData>(null);
 
-  function onFileSelected(e: React.ChangeEvent<HTMLInputElement>) {
+  async function compressImageIfNeeded(file: File): Promise<File> {
+    if (file.size <= MAX_FILE_SIZE_MB * MB_TO_BYTES) {
+      return file; // No compression needed
+    }
+
+    console.log(
+      `Compressing image of size: ${(file.size / MB_TO_BYTES).toFixed(2)}MB`
+    );
+
+    const options = {
+      maxSizeMB: MAX_FILE_SIZE_MB,
+      maxWidthOrHeight: 2048,
+      useWebWorker: true,
+    };
+
+    try {
+      const compressedFile = await imageCompression(file, options);
+      console.log(
+        `Compressed to: ${(compressedFile.size / MB_TO_BYTES).toFixed(2)}MB`
+      );
+      return compressedFile;
+    } catch (error) {
+      console.error("Error compressing image:", error);
+      return file; // Return original file if compression fails
+    }
+  }
+
+  async function onFileSelected(e: React.ChangeEvent<HTMLInputElement>) {
     if (!e.target.files?.[0]) return;
     const file = e.target.files[0];
     const previewUrl = URL.createObjectURL(file);
@@ -31,13 +62,17 @@ export default function SharePage() {
 
     try {
       setUploading(true);
-      const fileExt = preview.file.name.split(".").pop();
+
+      // Compress image if needed
+      const compressedFile = await compressImageIfNeeded(preview.file);
+
+      const fileExt = compressedFile.name.split(".").pop();
       const fileName = `${Math.random()}.${fileExt}`;
       const filePath = `${fileName}`;
 
       const { error: uploadError } = await createClient()
         .storage.from("images")
-        .upload(filePath, preview.file);
+        .upload(filePath, compressedFile);
 
       if (uploadError) throw uploadError;
 
