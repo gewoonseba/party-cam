@@ -3,6 +3,7 @@ import Link from "next/link";
 import PostCycle from "../components/PostCycle";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
+
 export default async function Home() {
   const supabase = await createClient();
 
