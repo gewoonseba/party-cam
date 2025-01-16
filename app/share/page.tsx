@@ -129,7 +129,7 @@ export default function SharePage() {
         )}
 
         <p className="mt-4 mb-1 text-gray-400">
-          1 woord zegt meer dan 1000 foto's
+          1 woord zegt meer dan 1000 foto&apos;s
         </p>
         <textarea
           placeholder="Today is where your book begins, the rest is still unwritten"
@@ -143,7 +143,7 @@ export default function SharePage() {
           className="w-full p-4 rounded-lg bg-[#00ff95] text-black font-bold text-lg disabled:opacity-50 transition-opacity"
           disabled={uploading || !preview}
         >
-          {uploading ? "Uploading..." : "Okaaaaaaay let'sgo"}
+          {uploading ? "Uploading..." : "Okaaaaaaay let&apos;s go"}
         </button>
       </form>
     </main>

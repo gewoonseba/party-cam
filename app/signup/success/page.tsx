@@ -9,8 +9,8 @@ export default function SignupSuccessPage() {
       <div className="max-w-md text-center space-y-4">
         <h2 className="text-2xl font-bold mb-4">Check your email!</h2>
         <p className="text-gray-300 mb-8">
-          We've sent you a confirmation link. Click the link in your email to
-          activate your account.
+          We&apos;ve sent you a confirmation link. Click the link in your email
+          to activate your account.
         </p>
         <Link
           href="/login"
