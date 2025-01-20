@@ -10,7 +10,6 @@ export function CountdownTimer({
   size = 24,
 }: CountdownTimerProps) {
   const progress = Math.min(1, elapsed / duration);
-  const degrees = progress * 360;
 
   // SVG parameters
   const radius = size / 2;
