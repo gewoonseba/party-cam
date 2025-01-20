@@ -21,24 +21,75 @@ export default function PostCycle() {
   // Initial posts fetch
   useEffect(() => {
     async function fetchPosts() {
+      // Don't fetch if transitioning
+      if (isTransitioning) {
+        console.log("🚫 Skipping fetch during transition");
+        return;
+      }
+
+      console.log("🔄 Fetching posts...");
       try {
         const fetchedPosts = await getAllPosts();
         const enrichedPosts = PostService.enrichPostsWithWeights(fetchedPosts);
+        console.log(`✅ Fetched ${enrichedPosts.length} posts`);
+
+        // Update indices to match new posts array if IDs changed
+        const currentPostId = posts[currentIndex]?.id;
+        const nextPostId = nextIndex !== null ? posts[nextIndex]?.id : null;
+
+        console.log(
+          `📍 Current post: #${currentPostId}, Next post: #${nextPostId}`
+        );
         setPosts(enrichedPosts);
+
+        // Maintain current and next posts after refresh
+        if (currentPostId) {
+          const newCurrentIndex = enrichedPosts.findIndex(
+            (p) => p.id === currentPostId
+          );
+          if (newCurrentIndex !== -1) {
+            console.log(
+              `✓ Maintained current post #${currentPostId} at index ${newCurrentIndex}`
+            );
+            setCurrentIndex(newCurrentIndex);
+          } else {
+            console.log(
+              `⚠️ Current post #${currentPostId} not found in new posts`
+            );
+          }
+        }
+
+        if (nextPostId) {
+          const newNextIndex = enrichedPosts.findIndex(
+            (p) => p.id === nextPostId
+          );
+          if (newNextIndex !== -1) {
+            console.log(
+              `✓ Maintained next post #${nextPostId} at index ${newNextIndex}`
+            );
+            setNextIndex(newNextIndex);
+          } else {
+            console.log(`⚠️ Next post #${nextPostId} not found in new posts`);
+          }
+        }
       } catch (error) {
-        console.error("Error fetching posts:", error);
+        console.error("❌ Error fetching posts:", error);
       } finally {
         setLoading(false);
       }
     }
 
+    console.log("⏰ Setting up fetch interval");
     fetchPosts();
     const interval = setInterval(
       fetchPosts,
       Number(process.env.NEXT_PUBLIC_FETCH_INTERVAL_SECONDS || 30) * 1000
     );
-    return () => clearInterval(interval);
-  }, []);
+    return () => {
+      console.log("🧹 Cleaning up fetch interval");
+      clearInterval(interval);
+    };
+  }, [isTransitioning]);
 
   // Prepare next post whenever current post changes
   useEffect(() => {
