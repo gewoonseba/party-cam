@@ -37,7 +37,7 @@ export async function createPost(caption: string, imageUrl: string) {
 export async function getAllPosts() {
   const { data: posts, error } = await supabase
     .from("posts")
-    .select("*")
+    .select("id, image_url, caption, created_at")
     .order("created_at", { ascending: false });
 
   if (error) {

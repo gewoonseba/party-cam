@@ -1,15 +1,10 @@
 "use client";
 
+import { Post, PostService } from "@/app/services/post.service";
 import { getAllPosts } from "@/utils/supabase/queries";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-
-type Post = {
-  id: number;
-  image_url: string;
-  caption: string;
-};
 
 export default function PostCycle() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -19,24 +14,18 @@ export default function PostCycle() {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const showDebugControls = process.env.NEXT_PUBLIC_DEBUG_CONTROLS === "true";
 
-  // Initial and periodic data fetching effect
   useEffect(() => {
     async function fetchPosts() {
       console.log("🔄 Fetching posts...");
       try {
         const fetchedPosts = await getAllPosts();
         console.log(`✅ Fetched ${fetchedPosts.length} posts`);
-        setPosts(fetchedPosts);
 
-        // Preload the first image immediately
-        if (fetchedPosts.length > 0) {
-          const firstImage = new window.Image();
-          firstImage.src = fetchedPosts[0].image_url;
-          firstImage.onload = () => {
-            setLoadedImages((prev) =>
-              new Set(prev).add(fetchedPosts[0].image_url)
-            );
-          };
+        const enrichedPosts = PostService.enrichPostsWithWeights(fetchedPosts);
+        setPosts(enrichedPosts);
+
+        if (enrichedPosts.length > 0) {
+          preloadImage(enrichedPosts[0].image_url);
         }
       } catch (error) {
         console.error("❌ Failed to fetch posts:", error);
@@ -45,34 +34,22 @@ export default function PostCycle() {
       }
     }
 
-    // Fetch immediately when component mounts
-    console.log("🎬 PostCycle mounted, initiating first fetch");
     fetchPosts();
+    const interval = setInterval(
+      fetchPosts,
+      Number(process.env.NEXT_PUBLIC_FETCH_INTERVAL_SECONDS || 30) * 1000
+    );
 
-    // Then fetch every 30 seconds
-    const interval = setInterval(() => {
-      console.log("⏰ Time to check for new posts");
-      fetchPosts();
-    }, 30 * 1000);
-
-    // Cleanup interval on unmount
-    return () => {
-      console.log("🧹 Cleaning up PostCycle intervals");
-      clearInterval(interval);
-    };
+    return () => clearInterval(interval);
   }, []);
 
-  // Preload next image effect
-  useEffect(() => {
-    if (posts.length === 0) return;
-
-    const nextIndex = (currentIndex + 1) % posts.length;
-    const nextImage = new window.Image();
-    nextImage.src = posts[nextIndex].image_url;
-    nextImage.onload = () => {
-      setLoadedImages((prev) => new Set(prev).add(posts[nextIndex].image_url));
+  function preloadImage(imageUrl: string) {
+    const image = new window.Image();
+    image.src = imageUrl;
+    image.onload = () => {
+      setLoadedImages((prev) => new Set(prev).add(imageUrl));
     };
-  }, [currentIndex, posts]);
+  }
 
   // Auto-advance timer effect
   useEffect(() => {
@@ -83,8 +60,8 @@ export default function PostCycle() {
       setTimeout(() => {
         setCurrentIndex((prev) => (prev + 1) % posts.length);
         setIsTransitioning(false);
-      }, 300);
-    }, 15000);
+      }, Number(process.env.NEXT_PUBLIC_TRANSITION_DURATION_MS || 300));
+    }, Number(process.env.NEXT_PUBLIC_SLIDE_INTERVAL_SECONDS || 15) * 1000);
 
     return () => clearInterval(interval);
   }, [posts.length]);
@@ -94,7 +71,7 @@ export default function PostCycle() {
     setTimeout(() => {
       setCurrentIndex((prev) => (prev - 1 + posts.length) % posts.length);
       setIsTransitioning(false);
-    }, 300);
+    }, Number(process.env.NEXT_PUBLIC_TRANSITION_DURATION_MS || 300));
   }
 
   function handleNext() {
@@ -102,7 +79,7 @@ export default function PostCycle() {
     setTimeout(() => {
       setCurrentIndex((prev) => (prev + 1) % posts.length);
       setIsTransitioning(false);
-    }, 300);
+    }, Number(process.env.NEXT_PUBLIC_TRANSITION_DURATION_MS || 300));
   }
 
   if (loading || posts.length === 0) {
@@ -155,8 +132,14 @@ export default function PostCycle() {
           >
             <ChevronRight className="w-6 h-6 text-white" />
           </button>
-          <div className="absolute bottom-16 left-1/2 -translate-x-1/2 bg-black/50 px-3 py-1 rounded-full text-white text-sm z-10">
-            {currentIndex + 1} / {posts.length}
+          <div className="absolute bottom-16 left-1/2 -translate-x-1/2 bg-black/50 px-3 py-1 rounded-full text-white text-sm z-10 space-y-1">
+            <div>
+              {currentIndex + 1} / {posts.length}
+            </div>
+            <div>Weight: {currentPost.weight?.toFixed(3)}</div>
+            <div>
+              Age: {PostService.getPostAge(currentPost.created_at).toFixed(0)}m
+            </div>
           </div>
         </>
       )}
