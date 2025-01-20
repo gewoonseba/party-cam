@@ -5,6 +5,7 @@ import { getAllPosts } from "@/utils/supabase/queries";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { CountdownTimer } from "./CountdownTimer";
 
 export default function PostCycle() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -14,6 +15,9 @@ export default function PostCycle() {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [nextImageLoaded, setNextImageLoaded] = useState(false);
   const showDebugControls = process.env.NEXT_PUBLIC_DEBUG_CONTROLS === "true";
+  const [elapsedTime, setElapsedTime] = useState(0);
+  const slideInterval =
+    Number(process.env.NEXT_PUBLIC_SLIDE_INTERVAL_SECONDS || 15) * 1000;
 
   useEffect(() => {
     async function fetchPosts() {
@@ -80,16 +84,28 @@ export default function PostCycle() {
     if (posts.length <= 1) return;
     if (!nextImageLoaded) return; // Only advance when next image is ready
 
-    const interval = setInterval(() => {
+    const startTime = Date.now();
+
+    // Timer for countdown display
+    const displayTimer = setInterval(() => {
+      setElapsedTime(Date.now() - startTime);
+    }, 100);
+
+    // Timer for advancing slides
+    const slideTimer = setTimeout(() => {
       setIsTransitioning(true);
       setTimeout(() => {
         setCurrentIndex((prev) => (prev + 1) % posts.length);
         setIsTransitioning(false);
       }, Number(process.env.NEXT_PUBLIC_TRANSITION_DURATION_MS || 300));
-    }, Number(process.env.NEXT_PUBLIC_SLIDE_INTERVAL_SECONDS || 15) * 1000);
+    }, slideInterval);
 
-    return () => clearInterval(interval);
-  }, [posts.length, nextImageLoaded]);
+    return () => {
+      clearInterval(displayTimer);
+      clearTimeout(slideTimer);
+      setElapsedTime(0);
+    };
+  }, [currentIndex, posts.length, nextImageLoaded, slideInterval]);
 
   // Modified navigation handlers
   function handleNext() {
@@ -204,6 +220,14 @@ export default function PostCycle() {
             <div className="flex justify-between gap-4">
               <span>Next image:</span>
               <span>{nextImageLoaded ? "Ready ✓" : "Loading..."}</span>
+            </div>
+            <div className="flex justify-between items-center gap-4">
+              <span>Next switch:</span>
+              <CountdownTimer
+                duration={slideInterval}
+                elapsed={elapsedTime}
+                size={28}
+              />
             </div>
           </div>
         </>
