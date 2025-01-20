@@ -55,4 +55,46 @@ export class PostService {
   static getPostAge(createdAt: string): number {
     return (new Date().getTime() - new Date(createdAt).getTime()) / (1000 * 60);
   }
+
+  static selectNextPost(posts: Post[]): Post | null {
+    // Filter out recently shown photos
+    const availablePosts = posts.filter(
+      (post) => !this.recentPhotoIds.includes(post.id)
+    );
+
+    if (availablePosts.length === 0) {
+      // If all posts are in recent list, use all posts except current
+      const currentId = this.recentPhotoIds[0];
+      const fallbackPosts = posts.filter((post) => post.id !== currentId);
+
+      if (fallbackPosts.length === 0) return null;
+      return this.weightedRandomSelection(fallbackPosts);
+    }
+
+    return this.weightedRandomSelection(availablePosts);
+  }
+
+  private static weightedRandomSelection(posts: Post[]): Post | null {
+    if (posts.length === 0) return null;
+
+    // Calculate sum of weights
+    const totalWeight = posts.reduce(
+      (sum, post) => sum + (post.weight || 0),
+      0
+    );
+
+    // Generate random value between 0 and total weight
+    let random = Math.random() * totalWeight;
+
+    // Select post based on weights
+    for (const post of posts) {
+      random -= post.weight || 0;
+      if (random <= 0) {
+        return post;
+      }
+    }
+
+    // Fallback to first post (shouldn't happen unless rounding errors)
+    return posts[0];
+  }
 }

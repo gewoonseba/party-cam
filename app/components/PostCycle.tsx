@@ -82,20 +82,26 @@ export default function PostCycle() {
   // Modified auto-advance timer
   useEffect(() => {
     if (posts.length <= 1) return;
-    if (!nextImageLoaded) return; // Only advance when next image is ready
+    if (!nextImageLoaded) return;
 
     const startTime = Date.now();
 
-    // Timer for countdown display
     const displayTimer = setInterval(() => {
       setElapsedTime(Date.now() - startTime);
     }, 100);
 
-    // Timer for advancing slides
     const slideTimer = setTimeout(() => {
       setIsTransitioning(true);
       setTimeout(() => {
-        setCurrentIndex((prev) => (prev + 1) % posts.length);
+        // Select next post using weighted algorithm
+        const nextPost = PostService.selectNextPost(posts);
+        if (nextPost) {
+          const nextIndex = posts.findIndex((p) => p.id === nextPost.id);
+          setCurrentIndex(nextIndex);
+        } else {
+          // Fallback to sequential if no post selected
+          setCurrentIndex((prev) => (prev + 1) % posts.length);
+        }
         setIsTransitioning(false);
       }, Number(process.env.NEXT_PUBLIC_TRANSITION_DURATION_MS || 300));
     }, slideInterval);
@@ -105,7 +111,7 @@ export default function PostCycle() {
       clearTimeout(slideTimer);
       setElapsedTime(0);
     };
-  }, [currentIndex, posts.length, nextImageLoaded, slideInterval]);
+  }, [currentIndex, posts, nextImageLoaded, slideInterval]);
 
   // Modified navigation handlers
   function handleNext() {
