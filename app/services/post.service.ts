@@ -56,16 +56,16 @@ export class PostService {
     return (new Date().getTime() - new Date(createdAt).getTime()) / (1000 * 60);
   }
 
-  static selectNextPost(posts: Post[]): Post | null {
-    // Filter out recently shown photos
+  static selectNextPost(posts: Post[], currentPostId: number): Post | null {
+    // Filter out current post and recently shown photos
     const availablePosts = posts.filter(
-      (post) => !this.recentPhotoIds.includes(post.id)
+      (post) =>
+        !this.recentPhotoIds.includes(post.id) && post.id !== currentPostId
     );
 
     if (availablePosts.length === 0) {
-      // If all posts are in recent list, use all posts except current
-      const currentId = this.recentPhotoIds[0];
-      const fallbackPosts = posts.filter((post) => post.id !== currentId);
+      // If all posts are in recent list or filtered out, use any post except current
+      const fallbackPosts = posts.filter((post) => post.id !== currentPostId);
 
       if (fallbackPosts.length === 0) return null;
       return this.weightedRandomSelection(fallbackPosts);
@@ -75,11 +75,11 @@ export class PostService {
   }
 
   private static weightedRandomSelection(posts: Post[]): Post | null {
-    if (posts.length === 0) return null;
+    if (!posts || posts.length === 0) return null;
 
     // Calculate sum of weights
     const totalWeight = posts.reduce(
-      (sum, post) => sum + (post.weight || 0),
+      (sum, post) => sum + (post.weight ?? 0),
       0
     );
 
@@ -88,7 +88,7 @@ export class PostService {
 
     // Select post based on weights
     for (const post of posts) {
-      random -= post.weight || 0;
+      random -= post.weight ?? 0;
       if (random <= 0) {
         return post;
       }
