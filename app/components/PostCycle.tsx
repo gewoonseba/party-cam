@@ -12,6 +12,7 @@ export default function PostCycle() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [nextImageLoaded, setNextImageLoaded] = useState(false);
   const showDebugControls = process.env.NEXT_PUBLIC_DEBUG_CONTROLS === "true";
 
   useEffect(() => {
@@ -51,9 +52,33 @@ export default function PostCycle() {
     };
   }
 
-  // Auto-advance timer effect
+  // Preload next image whenever current index changes
   useEffect(() => {
     if (posts.length <= 1) return;
+
+    const nextIndex = (currentIndex + 1) % posts.length;
+    const nextImageUrl = posts[nextIndex].image_url;
+
+    setNextImageLoaded(false);
+    const image = new window.Image();
+    image.src = nextImageUrl;
+
+    image.onload = () => {
+      setLoadedImages((prev) => new Set(prev).add(nextImageUrl));
+      setNextImageLoaded(true);
+    };
+
+    image.onerror = () => {
+      console.error(`❌ Failed to load image: ${nextImageUrl}`);
+      // Skip to next image on error
+      setCurrentIndex(nextIndex);
+    };
+  }, [currentIndex, posts]);
+
+  // Modified auto-advance timer
+  useEffect(() => {
+    if (posts.length <= 1) return;
+    if (!nextImageLoaded) return; // Only advance when next image is ready
 
     const interval = setInterval(() => {
       setIsTransitioning(true);
@@ -64,20 +89,22 @@ export default function PostCycle() {
     }, Number(process.env.NEXT_PUBLIC_SLIDE_INTERVAL_SECONDS || 15) * 1000);
 
     return () => clearInterval(interval);
-  }, [posts.length]);
+  }, [posts.length, nextImageLoaded]);
+
+  // Modified navigation handlers
+  function handleNext() {
+    if (!nextImageLoaded) return; // Prevent navigation if next image isn't ready
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setCurrentIndex((prev) => (prev + 1) % posts.length);
+      setIsTransitioning(false);
+    }, Number(process.env.NEXT_PUBLIC_TRANSITION_DURATION_MS || 300));
+  }
 
   function handlePrevious() {
     setIsTransitioning(true);
     setTimeout(() => {
       setCurrentIndex((prev) => (prev - 1 + posts.length) % posts.length);
-      setIsTransitioning(false);
-    }, Number(process.env.NEXT_PUBLIC_TRANSITION_DURATION_MS || 300));
-  }
-
-  function handleNext() {
-    setIsTransitioning(true);
-    setTimeout(() => {
-      setCurrentIndex((prev) => (prev + 1) % posts.length);
       setIsTransitioning(false);
     }, Number(process.env.NEXT_PUBLIC_TRANSITION_DURATION_MS || 300));
   }
@@ -173,6 +200,10 @@ export default function PostCycle() {
                   </span>
                 ))}
               </div>
+            </div>
+            <div className="flex justify-between gap-4">
+              <span>Next image:</span>
+              <span>{nextImageLoaded ? "Ready ✓" : "Loading..."}</span>
             </div>
           </div>
         </>
