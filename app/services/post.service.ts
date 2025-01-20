@@ -8,6 +8,25 @@ export type Post = {
 
 export class PostService {
   private static readonly MIN_WEIGHT = 0.008;
+  private static readonly MAX_RECENT_PHOTOS = 5;
+  private static recentPhotoIds: number[] = [];
+
+  static addToRecentPhotos(photoId: number) {
+    // Remove if already exists to prevent duplicates
+    this.recentPhotoIds = this.recentPhotoIds.filter((id) => id !== photoId);
+
+    // Add to start of array
+    this.recentPhotoIds.unshift(photoId);
+
+    // Keep only last N items
+    if (this.recentPhotoIds.length > this.MAX_RECENT_PHOTOS) {
+      this.recentPhotoIds.pop();
+    }
+  }
+
+  static getRecentPhotos(): number[] {
+    return [...this.recentPhotoIds];
+  }
 
   static calculateWeight(createdAt: string): number {
     try {

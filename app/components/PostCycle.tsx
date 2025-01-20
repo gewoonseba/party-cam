@@ -82,6 +82,14 @@ export default function PostCycle() {
     }, Number(process.env.NEXT_PUBLIC_TRANSITION_DURATION_MS || 300));
   }
 
+  // Add current post to recent photos
+  useEffect(() => {
+    if (posts[currentIndex]) {
+      PostService.addToRecentPhotos(posts[currentIndex].id);
+    }
+  }, [posts, currentIndex]);
+
+  // Loading state
   if (loading || posts.length === 0) {
     return (
       <div className="w-full h-full flex items-center justify-center">
@@ -118,7 +126,7 @@ export default function PostCycle() {
         </div>
       )}
 
-      {showDebugControls && posts.length > 1 && (
+      {showDebugControls && (
         <>
           <button
             onClick={handlePrevious}
@@ -132,13 +140,39 @@ export default function PostCycle() {
           >
             <ChevronRight className="w-6 h-6 text-white" />
           </button>
-          <div className="absolute bottom-16 left-1/2 -translate-x-1/2 bg-black/50 px-3 py-1 rounded-full text-white text-sm z-10 space-y-1">
-            <div>
-              {currentIndex + 1} / {posts.length}
+          <div className="absolute bottom-16 left-1/2 -translate-x-1/2 bg-black/50 px-4 py-2 rounded-lg text-white text-sm z-10 space-y-2">
+            <div className="flex justify-between gap-4">
+              <span>Current:</span>
+              <span>
+                {currentIndex + 1} / {posts.length}
+              </span>
             </div>
-            <div>Weight: {currentPost.weight?.toFixed(3)}</div>
-            <div>
-              Age: {PostService.getPostAge(currentPost.created_at).toFixed(0)}m
+            <div className="flex justify-between gap-4">
+              <span>Weight:</span>
+              <span>{currentPost.weight?.toFixed(3)}</span>
+            </div>
+            <div className="flex justify-between gap-4">
+              <span>Age:</span>
+              <span>
+                {PostService.getPostAge(currentPost.created_at).toFixed(0)}m
+              </span>
+            </div>
+            <div className="pt-1 border-t border-white/20">
+              <div className="mb-1">Recent photos:</div>
+              <div className="flex gap-1 flex-wrap">
+                {PostService.getRecentPhotos().map((id) => (
+                  <span
+                    key={id}
+                    className={`px-1.5 py-0.5 rounded ${
+                      id === currentPost.id
+                        ? "bg-[#00ff95] text-black"
+                        : "bg-black/50"
+                    }`}
+                  >
+                    {id}
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
         </>
