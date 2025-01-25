@@ -18,9 +18,9 @@ export default function QR({ path }: QRCodeDisplayProps) {
       text={url}
       options={{
         errorCorrectionLevel: "M",
-        margin: 2,
-        scale: 3,
-        width: 200,
+        margin: 4,
+        scale: 10,
+        width: 120,
         color: {
           dark: "#1a1a1a",
           light: "#00ff95",

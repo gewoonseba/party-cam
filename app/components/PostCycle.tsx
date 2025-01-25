@@ -155,10 +155,10 @@ export default function PostCycle() {
           src={currentPost.image_url}
           alt="Party moment"
           fill
-          className="object-cover"
+          className="object-contain"
           priority
         />
-        <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/70 to-transparent">
+        <div className="absolute inset-x-0 bottom-0 p-4 ">
           <p className="text-white text-xl">{currentPost.caption}</p>
         </div>
       </div>
