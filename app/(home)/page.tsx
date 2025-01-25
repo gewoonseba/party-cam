@@ -27,7 +27,7 @@ export default async function Home() {
         href="/share"
         className="absolute bottom-8 right-8 bg-[#00ff95] text-black p-4 rounded-lg shadow-lg shadow-[#00ff95]/20 hover:shadow-[#00ff95]/40 transition-shadow"
       >
-        <QR url={`https://www.gewoonseba.com`} />
+        <QR path={`share`} />
       </Link>
     </main>
   );

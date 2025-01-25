@@ -5,5 +5,6 @@ declare namespace NodeJS {
     NEXT_PUBLIC_TRANSITION_DURATION_MS?: string;
     NEXT_PUBLIC_SLIDE_INTERVAL_SECONDS?: string;
     NEXT_PUBLIC_FETCH_INTERVAL_SECONDS?: string;
+    NEXT_PUBLIC_VERCEL_URL?: string;
   }
 }

@@ -3,11 +3,16 @@
 import { useQRCode } from "next-qrcode";
 
 type QRCodeDisplayProps = {
-  url: string;
+  path: string;
 };
 
-export default function QR({ url }: QRCodeDisplayProps) {
+export default function QR({ path }: QRCodeDisplayProps) {
   const { Canvas } = useQRCode();
+  const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL || "localhost:3000";
+  const url = `http://${baseUrl}/${path}`;
+
+  console.log(url);
+
   return (
     <Canvas
       text={url}
