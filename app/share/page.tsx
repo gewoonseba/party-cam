@@ -93,14 +93,14 @@ export default function SharePage() {
 
   return (
     <main className="min-h-screen flex flex-col items-center p-4 bg-[#1a1a1a] text-white">
-      <h1 className="text-6xl font-bold text-[#00ff95] mb-2 filter drop-shadow-[0_0_10px_rgba(0,255,149,0.8)]">
+      <h1 className="text-6xl font-bold text-primary mb-2 filter drop-shadow-[0_0_10px_rgba(0,255,149,0.8)]">
         Thirty
       </h1>
       <p className="text-xl mb-4">Sharing is caring, deel iets met ons!</p>
 
       <form onSubmit={handleSubmit} className="w-full max-w-md">
         {preview ? (
-          <div className="w-full aspect-[4/3] relative rounded-lg overflow-hidden mb-4">
+          <div className="w-full aspect-[4/3] relative overflow-hidden mb-4">
             <Image
               src={preview.previewUrl}
               alt="Preview"
@@ -110,15 +110,15 @@ export default function SharePage() {
             <button
               type="button"
               onClick={() => setPreview(null)}
-              className="absolute top-2 right-2 bg-black/50 text-white px-3 py-1 rounded-lg hover:bg-black/70"
+              className="absolute top-2 right-2 bg-black/50 text-white px-3 py-1 hover:bg-black/70"
             >
               Change
             </button>
           </div>
         ) : (
-          <label className="w-full aspect-[4/3] border-2 border-dashed border-[#00ff95]/40 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-[#00ff95]/60 transition-colors mb-4">
-            <Upload className="w-12 h-12 text-[#00ff95] mb-4" />
-            <p className="text-[#00ff95] font-bold">LACHE VOOR DE FOTOO</p>
+          <label className="w-full aspect-[4/3] border-2 border-dashed border-primary/40 flex flex-col items-center justify-center cursor-pointer hover:border-primary/60 transition-colors mb-4">
+            <Upload className="w-12 h-12 text-primary mb-4" />
+            <p className="text-primary font-bold">LACHE VOOR DE FOTOO</p>
             <input
               type="file"
               accept="image/*"
@@ -133,17 +133,17 @@ export default function SharePage() {
         </p>
         <textarea
           placeholder="Today is where your book begins, the rest is still unwritten"
-          className="w-full p-4 rounded-lg bg-gray-800/50 border border-gray-700 text-white mb-4 min-h-[100px] resize-none"
+          className="w-full p-4 bg-gray-800/50 border border-gray-700 text-white mb-4 min-h-[100px] resize-none"
           value={caption}
           onChange={(e) => setCaption(e.target.value)}
         />
 
         <button
           type="submit"
-          className="w-full p-4 rounded-lg bg-[#00ff95] text-black font-bold text-lg disabled:opacity-50 transition-opacity"
+          className="w-full p-4 bg-primary text-black font-bold text-lg disabled:opacity-50 transition-opacity"
           disabled={uploading || !preview}
         >
-          {uploading ? "Uploading..." : "Okaaaaaaay let&apos;s go"}
+          {uploading ? "Uploading..." : "Okaaaaaaay let's go"}
         </button>
       </form>
     </main>

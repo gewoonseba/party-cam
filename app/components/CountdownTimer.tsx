@@ -23,7 +23,7 @@ export function CountdownTimer({
       <svg width={size} height={size} className="transform -rotate-90">
         {/* Background circle */}
         <circle
-          stroke="#4a4a4a"
+          className="stroke-gray"
           fill="transparent"
           strokeWidth={strokeWidth}
           r={normalizedRadius}
@@ -32,7 +32,7 @@ export function CountdownTimer({
         />
         {/* Progress circle */}
         <circle
-          stroke="#00ff95"
+          className="stroke-primary"
           fill="transparent"
           strokeWidth={strokeWidth}
           strokeDasharray={circumference + " " + circumference}

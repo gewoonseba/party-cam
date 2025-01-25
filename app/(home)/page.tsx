@@ -13,11 +13,11 @@ export default async function Home() {
   }
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center p-2 relative bg-[#1a1a1a]">
+    <main className="min-h-screen flex flex-col items-center justify-center p-2 relative bg-black text-primary">
       <div className="max-w-[90vw] aspect-[4/3] h-[90vh] relative rounded-lg overflow-hidden">
         <PostCycle />
         <div className="absolute inset-x-0 top-0 p-4 ">
-          <h1 className="text-6xl font-bold text-[#00ff95] filter drop-shadow-[0_0_10px_rgba(0,255,149,0.8)] text-center w-full">
+          <h1 className="text-6xl font-bold text-center w-full drop-shadow-glow">
             Thirty
           </h1>
         </div>
@@ -25,7 +25,7 @@ export default async function Home() {
 
       <Link
         href="/share"
-        className="absolute bottom-8 right-8  shadow-lg shadow-[#00ff95]/20 hover:shadow-[#00ff95]/40 transition-shadow"
+        className="absolute bottom-8 right-8  shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-shadow"
       >
         <QR path={`share`} />
       </Link>
