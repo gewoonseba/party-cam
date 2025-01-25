@@ -14,7 +14,7 @@ export default async function Home() {
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center p-2 relative bg-[#1a1a1a]">
-      <div className="max-w-7xl aspect-[4/3] h-[90vh] relative rounded-lg overflow-hidden">
+      <div className="max-w-[90vw] aspect-[4/3] h-[90vh] relative rounded-lg overflow-hidden">
         <PostCycle />
         <div className="absolute inset-x-0 top-0 p-4 ">
           <h1 className="text-6xl font-bold text-[#00ff95] filter drop-shadow-[0_0_10px_rgba(0,255,149,0.8)] text-center w-full">
