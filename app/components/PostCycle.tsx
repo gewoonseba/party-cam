@@ -13,7 +13,7 @@ export default function PostCycle() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [nextIndex, setNextIndex] = useState<number | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const showDebugControls = process.env.NEXT_PUBLIC_DEBUG_CONTROLS === "false";
+  const showDebugControls = process.env.NEXT_PUBLIC_DEBUG_CONTROLS;
   const [elapsedTime, setElapsedTime] = useState(0);
   const slideInterval =
     Number(process.env.NEXT_PUBLIC_SLIDE_INTERVAL_SECONDS || 15) * 1000;
