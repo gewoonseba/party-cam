@@ -9,7 +9,7 @@ type QRCodeDisplayProps = {
 export default function QR({ path }: QRCodeDisplayProps) {
   const { Canvas } = useQRCode();
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "localhost:3000";
-  const url = `http://${baseUrl}/${path}`;
+  const url = `${baseUrl}/${path}`;
 
   console.log(url);
 
