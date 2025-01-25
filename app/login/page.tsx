@@ -3,9 +3,7 @@ import { login, signup } from "./actions";
 export default function LoginPage() {
   return (
     <main className="min-h-screen flex flex-col items-center justify-center p-4 bg-black text-white">
-      <h1 className="text-6xl font-bold mb-6 filter drop-shadow-glow text-primary">
-        Thirty
-      </h1>
+      <h1>Thirty</h1>
       <div className="w-full max-w-md">
         <form className="space-y-4">
           <div className="space-y-2">

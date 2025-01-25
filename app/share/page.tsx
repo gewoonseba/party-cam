@@ -92,10 +92,8 @@ export default function SharePage() {
   }
 
   return (
-    <main className="min-h-screen flex flex-col items-center p-4 bg-[#1a1a1a] text-white">
-      <h1 className="text-6xl font-bold text-primary mb-2 filter drop-shadow-[0_0_10px_rgba(0,255,149,0.8)]">
-        Thirty
-      </h1>
+    <main className="min-h-screen flex flex-col items-center p-4 bg-black text-white">
+      <h1>Thirty</h1>
       <p className="text-xl mb-4">Sharing is caring, deel iets met ons!</p>
 
       <form onSubmit={handleSubmit} className="w-full max-w-md">

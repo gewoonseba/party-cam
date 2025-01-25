@@ -15,6 +15,10 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["var(--font-inter)"],
+        display: ["var(--font-picnic)"],
+      },
       colors: {
         primary: "#00ff95",
         black: "#1a1a1a",

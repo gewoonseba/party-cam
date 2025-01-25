@@ -7,9 +7,7 @@ export default function ThanksPage() {
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center p-4 bg-black text-center">
-      <h1 className="text-4xl md:text-6xl font-bold mb-6 text-primary filter drop-shadow-glow">
-        Gracias Amigo!
-      </h1>
+      <h1 className="text-4xl">Gracias Amigo!</h1>
       <p className="text-xl md:text-2xl text-white mb-12">
         Uw kiekje komt dadelijk op het grote scherm.
       </p>

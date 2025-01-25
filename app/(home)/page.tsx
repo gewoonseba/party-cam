@@ -17,9 +17,7 @@ export default async function Home() {
       <div className="max-w-[90vw] aspect-[4/3] h-[90vh] relative rounded-lg overflow-hidden">
         <PostCycle />
         <div className="absolute inset-x-0 top-0 p-4 ">
-          <h1 className="text-6xl font-bold text-center w-full drop-shadow-glow">
-            Thirty
-          </h1>
+          <h1>Thirty</h1>
         </div>
       </div>
 
