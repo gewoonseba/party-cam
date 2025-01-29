@@ -35,8 +35,11 @@ export class PostService {
       const minutesSinceUpload =
         (now.getTime() - uploadTime.getTime()) / (1000 * 60);
 
-      // Apply hyperbolic decay formula with minimum weight
-      const weight = Math.max(1.0 / (minutesSinceUpload + 1), this.MIN_WEIGHT);
+      // Apply slower hyperbolic decay formula with minimum weight
+      const weight = Math.max(
+        1.0 / (minutesSinceUpload / 30 + 1),
+        this.MIN_WEIGHT
+      );
 
       return Number(weight.toFixed(3));
     } catch (error) {
