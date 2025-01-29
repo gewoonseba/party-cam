@@ -94,7 +94,10 @@ export default function SharePage() {
   return (
     <main className="min-h-screen flex flex-col items-center p-4 bg-black text-white">
       <h1>Thirty</h1>
-      <p className="text-xl mb-4">Sharing is caring, deel iets met ons!</p>
+      <p className="text-xl mb-4">
+        <span className="font-display text-2xl">Sharing</span> is caring, deel
+        iets met ons!
+      </p>
 
       <form onSubmit={handleSubmit} className="w-full max-w-md">
         {preview ? (
@@ -127,11 +130,12 @@ export default function SharePage() {
         )}
 
         <p className="mt-4 mb-1 text-gray-400">
-          1 woord zegt meer dan 1000 foto&apos;s
+          <span className="font-display text-xl">1 woord</span> zegt meer dan
+          1000 foto&apos;s
         </p>
         <textarea
           placeholder="Today is where your book begins, the rest is still unwritten"
-          className="w-full p-4 bg-gray-800/50 border border-gray-700 text-white mb-4 min-h-[100px] resize-none"
+          className="w-full p-4 bg-white/5 border border-gray-700 text-white mb-4 min-h-[100px] resize-none"
           value={caption}
           onChange={(e) => setCaption(e.target.value)}
         />

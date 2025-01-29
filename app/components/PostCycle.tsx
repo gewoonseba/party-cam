@@ -158,8 +158,10 @@ export default function PostCycle() {
           className="object-contain"
           priority
         />
-        <div className="absolute inset-x-0 bottom-0 p-4 ">
-          <p className="text-white text-xl">{currentPost.caption}</p>
+        <div className="absolute inset-x-0 bottom-0 pb-10 flex justify-center">
+          <p className="text-white/90 backdrop-blur-sm text-3xl font-bold font-outline">
+            {currentPost.caption}
+          </p>
         </div>
       </div>
 

@@ -1,3 +1,4 @@
+import Arrow from "@/app/components/Arrow";
 import PostCycle from "@/app/components/PostCycle";
 import QR from "@/app/components/QR";
 import { createClient } from "@/utils/supabase/server";
@@ -21,12 +22,16 @@ export default async function Home() {
         </div>
       </div>
 
-      <Link
-        href="/share"
-        className="absolute bottom-8 right-8  shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-shadow"
-      >
-        <QR path={`share`} />
-      </Link>
+      <div className="absolute bottom-8 right-8 grid grid-cols-[120px_120px] grid-rows-[120px_120px] gap-2">
+        <Arrow className="row-span-2 text-primary h-32 self-end mb-8 ml-8" />
+        <p className="text-primary font-outline self-end">
+          <span className="font-display text-lg">Deel</span> je mooiste kiekjes
+          met ons!
+        </p>
+        <Link href="/share">
+          <QR path={`share`} />
+        </Link>
+      </div>
     </main>
   );
 }

@@ -9,6 +9,12 @@
     -webkit-text-stroke-color: theme("colors.black");
     paint-order: stroke fill;
   }
+
+  .font-outline {
+    -webkit-text-stroke-width: 8px;
+    -webkit-text-stroke-color: theme("colors.black");
+    paint-order: stroke fill;
+  }
 }
 
 body {
