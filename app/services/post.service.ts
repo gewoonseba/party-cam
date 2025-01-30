@@ -37,7 +37,7 @@ export class PostService {
 
       // Apply slower hyperbolic decay formula with minimum weight
       const weight = Math.max(
-        1.0 / (minutesSinceUpload / 30 + 1),
+        1.0 / (minutesSinceUpload / 5 + 1),
         this.MIN_WEIGHT
       );
 
