@@ -17,6 +17,7 @@ export default function PostCycle() {
   const [elapsedTime, setElapsedTime] = useState(0);
   const slideInterval =
     Number(process.env.NEXT_PUBLIC_SLIDE_INTERVAL_SECONDS || 15) * 1000;
+  const [nextImageLoaded, setNextImageLoaded] = useState(false);
 
   // Initial posts fetch
   useEffect(() => {
@@ -100,16 +101,29 @@ export default function PostCycle() {
 
     const nextIdx = posts.findIndex((p) => p.id === nextPost.id);
     setNextIndex(nextIdx);
+    setNextImageLoaded(false);
 
     // Preload next image
+    console.log("🖼️ Preloading next image:", nextPost.image_url);
     const image = new window.Image();
     image.src = nextPost.image_url;
+
+    image.onload = () => {
+      console.log("✅ Next image loaded:", nextPost.image_url);
+      setNextImageLoaded(true);
+    };
+
+    image.onerror = () => {
+      console.error("❌ Failed to load next image:", nextPost.image_url);
+      setNextImageLoaded(false);
+    };
   }, [currentIndex, posts]);
 
   // Auto-advance timer
   useEffect(() => {
-    if (posts.length <= 1 || nextIndex === null) return;
+    if (posts.length <= 1 || nextIndex === null || !nextImageLoaded) return;
 
+    console.log("⏱️ Starting transition timer");
     const startTime = Date.now();
     const displayTimer = setInterval(() => {
       setElapsedTime(Date.now() - startTime);
@@ -128,7 +142,7 @@ export default function PostCycle() {
       clearTimeout(transitionTimer);
       setElapsedTime(0);
     };
-  }, [nextIndex, posts.length, slideInterval]);
+  }, [nextIndex, posts.length, slideInterval, nextImageLoaded]);
 
   // Track shown photos
   useEffect(() => {
@@ -174,6 +188,7 @@ export default function PostCycle() {
           totalPosts={posts.length}
           elapsedTime={elapsedTime}
           slideInterval={slideInterval}
+          nextImageLoaded={nextImageLoaded}
         />
       )}
     </div>

@@ -8,6 +8,7 @@ type DebugOverlayProps = {
   totalPosts: number;
   elapsedTime: number;
   slideInterval: number;
+  nextImageLoaded: boolean;
 };
 
 export function DebugOverlay({
@@ -17,6 +18,7 @@ export function DebugOverlay({
   totalPosts,
   elapsedTime,
   slideInterval,
+  nextImageLoaded,
 }: DebugOverlayProps) {
   const recentPhotos = PostService.getRecentPhotos();
 
@@ -35,9 +37,16 @@ export function DebugOverlay({
       <div className="flex justify-between gap-4">
         <span>Next post:</span>
         <span>
-          {nextPost
-            ? `#${nextPost.id} (w: ${nextPost.weight?.toFixed(3)})`
-            : "None"}
+          {nextPost ? (
+            <span
+              className={nextImageLoaded ? "text-primary" : "text-gray-400"}
+            >
+              #{nextPost.id} (w: {nextPost.weight?.toFixed(3)})
+              {!nextImageLoaded && " ⌛"}
+            </span>
+          ) : (
+            "None"
+          )}
         </span>
       </div>
       <div className="flex justify-between items-center gap-4">
