@@ -8,7 +8,7 @@ export type Post = {
 
 export class PostService {
   private static readonly MIN_WEIGHT = 0.008;
-  private static readonly MAX_RECENT_PHOTOS = 5;
+  private static readonly MAX_RECENT_PHOTOS = 10;
   private static recentPhotoIds: number[] = [];
 
   static addToRecentPhotos(photoId: number) {
