@@ -23,7 +23,7 @@ export function DebugOverlay({
   const recentPhotos = PostService.getRecentPhotos();
 
   return (
-    <div className="absolute bottom-16 left-1/2 -translate-x-1/2 bg-black/50 backdrop-blur-md px-4 py-2 rounded-lg text-white text-sm z-10 space-y-2">
+    <div className="hidden absolute bottom-16 left-1/2 -translate-x-1/2 bg-black/50 backdrop-blur-md px-4 py-2 rounded-lg text-white text-sm z-10 space-y-2">
       <div className="flex justify-between gap-4">
         <span>Current:</span>
         <span>

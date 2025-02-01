@@ -4,6 +4,7 @@ import { Post, PostService } from "@/app/services/post.service";
 import { getAllPosts } from "@/utils/supabase/queries";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { DebugOverlay } from "./DebugOverlay";
 import { LoadingSpinner } from "./LoadingSpinner";
 
 export default function PostCycle() {
@@ -179,7 +180,7 @@ export default function PostCycle() {
       </div>
 
       {/* Debug UI */}
-      {/* {showDebugControls && (
+      {showDebugControls && (
         <DebugOverlay
           currentPost={currentPost}
           nextPost={nextPost}
@@ -189,7 +190,7 @@ export default function PostCycle() {
           slideInterval={slideInterval}
           nextImageLoaded={nextImageLoaded}
         />
-      )} */}
+      )}
     </div>
   );
 }
